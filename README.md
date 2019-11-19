@@ -10,8 +10,8 @@ R code consists of couple helper functions and data.frame dataset for drawing th
 ![Hangmang in ggplot2](./img/hangman.jpg)
 
 
-Once you start the while loop, you will be prompted to insert the word that will be shown as "_ , _ , _ , _ " (in case of four-letter word) and later a 
-separate letter for guessing.
+Once you start the while loop, you will be prompted to insert the word that will be 
+shown as "_ , _ , _ , _ " (in case of four-letter word) and later a  separate letter for guessing.
 
 
 
