@@ -3,8 +3,9 @@
 #### Hangman game with R
 ####
 ####  Created by Tomaz Kastrun
-####  Date: November, 19, 2019
-####  Version: 0.0.1 (bugs)
+####  Contributed by Jesus Armand Calejero Roman
+####  Date: November, 21, 2019
+####  Version: 0.0.2
 ####
 
 ####  ToDo: Write checker for existing letters
@@ -17,8 +18,8 @@ library(ggplot2)
 ### Helper functions
 #######################
 
-zamenjaj2 <- function(beseda, crka){
-
+zamenjaj2 <- function(beseda, crka, iskana_beseda){
+  
   if (regexpr(crka, beseda)[1] > 0) {
     
     pozicija <- regexpr(crka, beseda)[1]
@@ -40,7 +41,7 @@ drawHead <- function(orig_position = c(0,0)
                      ,dia = 1
                      ,nof_points = 10
                      , group=5){
-
+  
   vectT <- seq(0,2*pi, length.out = nof_points)
   r = dia/2
   x_data <- orig_position[1] + r * cos(vectT)
@@ -69,7 +70,6 @@ level7 <- data.frame(x=c(5.5,6,6.5),y=c(2,2.5,2), group=c(7,7,7))
 levels <- rbind(level1,level2,level3,level4,level5,level6,level7)
 rm(level1,level2,level3,level4,level5,level6,level7)
 
-
 ########################
 ### Helper variables
 ########################
@@ -82,68 +82,70 @@ cilj = NULL
 cilj_n = NULL
 active = TRUE
 
-
-
 ########################
 ##  Hangman
 #######################
 
-
-beseda <- readline(prompt="Word: ")
-#beseda <- 'miza'
-
-#iskana_beseda <- replicate(nchar(beseda),'_')
-#iskana_beseda <- toString(as.character(replicate(nchar(beseda), ' _ ')))
-iskana_beseda <- replicate(nchar(beseda),'_')
-
-
-while (active == TRUE) {
+StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capital letters are available. 
+  beseda <- readline(prompt="Word: ")
   
-  if (i == 0) {
-    writeLines(paste(iskana_beseda, collapse = " "))
-    }
+  if (sensitive.flag == FALSE) {
+    beseda <- base::tolower(beseda)
+  }
   
-  crka <- readline(prompt="Enter Letter: ")
-  izbor <- rbind(izbor, crka)
+  #beseda <- 'miza'
   
-  #iskana_beseda
-  if (grepl(crka, beseda) == TRUE) {
-   
-    cilj <- rbind(cilj, crka)
-    iskana_beseda <- zamenjaj2(beseda, crka)
-    #print(zamenjaj2(beseda, crka))  
-    print(paste("Yay!","Try N:",i+1,"Wrong letters: {",(toString(paste0(cilj_n, sep=","))),"}")) 
- 
-    if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
-      active == FALSE
-      print("Bravo, win!")
-      break
+  #iskana_beseda <- replicate(nchar(beseda),'_')
+  #iskana_beseda <- toString(as.character(replicate(nchar(beseda), ' _ ')))
+  iskana_beseda <- replicate(nchar(beseda),'_')
+  
+  
+  while (active == TRUE) {
+    
+    if (i == 0) {
+      writeLines(paste(iskana_beseda, collapse = " "))
     }
     
-  } else {
-    cilj_n <- rbind(cilj_n, crka)
-    print(paste("Nope!","Try N:",i+1,"Wrong letters: {",(toString(paste0(cilj_n, sep=","))),"}")) 
-    #print(toString(paste0(cilj_n, sep=",")))
+    crka <- readline(prompt="Enter Letter: ")
+    izbor <- rbind(izbor, crka)
     
-    #Graph
-    st_napak <- as.integer(length(cilj_n))
-    print(drawMan(st_napak = st_napak))
+    #iskana_beseda
+    if (grepl(crka, beseda) == TRUE) {
+      
+      cilj <- rbind(cilj, crka)
+      iskana_beseda <- zamenjaj2(beseda, crka, iskana_beseda)
+      #print(zamenjaj2(beseda, crka))  
+      print(paste("Yay!","Try N:",i+1,"Wrong letters: {",(toString(paste0(cilj_n, sep=","))),"}")) 
+      
+      if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
+        active == FALSE
+        print("Bravo, win!")
+        break
+      }
+      
+    } else {
+      cilj_n <- rbind(cilj_n, crka)
+      print(paste("Nope!","Try N:",i+1,"Wrong letters: {",(toString(paste0(cilj_n, sep=","))),"}")) 
+      #print(toString(paste0(cilj_n, sep=",")))
+      
+      #Graph
+      st_napak <- as.integer(length(cilj_n))
+      print(drawMan(st_napak = st_napak))
+      
+      if(as.integer(st_napak)==7){
+        active==FALSE
+        break
+        print("End Game")
+      }
+      
+    }
     
-    if(as.integer(st_napak)==7){
+    i= i+1
+    #cat("\f")  
+    if(st_napak==7){
       active==FALSE
       break
-      print("End Game")
+      print("End game")
     }
-    
   }
-  
-  i= i+1
-  #cat("\f")  
-  if(st_napak==7){
-    active==FALSE
-    break
-    print("End game")
-  }
-      
 }
-
