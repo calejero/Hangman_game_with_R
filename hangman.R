@@ -116,7 +116,7 @@ while (active == TRUE) {
  
     if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
       active == FALSE
-      Print("Bravo, win!")
+      print("Bravo, win!")
       break
     }
     
