@@ -36,6 +36,11 @@ zamenjaj2 <- function(beseda, crka, iskana_beseda){
   }
 }
 
+AnalyzeWordCandidate <- function(control.df, word.c) {
+  control.df$flag <- ifelse(control.df$word == word.c, 1, 0)
+  return(control.df$index[control.df$flag == 1])
+}
+
 drawHead <- function(orig_position = c(0,0),
                      dia = 1,
                      nof_points = 10,
@@ -96,13 +101,11 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
   if (sensitive.flag == FALSE) {
     beseda <- base::tolower(beseda)
   }
-  
-  #beseda <- 'miza'
-  
-  #iskana_beseda <- replicate(nchar(beseda),'_')
-  #iskana_beseda <- toString(as.character(replicate(nchar(beseda), ' _ ')))
+  control.df <- data.frame(word = strsplit(beseda, "")[[1]], 
+                           flag = 0,
+                           index = rep(1:length(strsplit(beseda, "")[[1]])), 
+                           stringsAsFactors = FALSE)
   iskana_beseda <- replicate(nchar(beseda), '_')
-  
   
   while (active == TRUE) {
     
@@ -117,8 +120,11 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
     if (grepl(crka, beseda) == TRUE) {
       
       cilj <- rbind(cilj, crka)
-      iskana_beseda <- zamenjaj2(beseda, crka, iskana_beseda)
-      #print(zamenjaj2(beseda, crka))  
+      index.c <- AnalyzeWordCandidate(control.df, crka)
+
+      #iskana_beseda <- zamenjaj2(beseda, crka, iskana_beseda)
+      iskana_beseda[index.c] <- crka
+      cat(iskana_beseda, "\n")
       print(paste("Yay!","Try N:",i+1,"Wrong letters: {",(toString(paste0(cilj_n, sep=","))),"}")) 
       
       if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
