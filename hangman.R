@@ -4,11 +4,9 @@
 ####
 ####  Created by Tomaz Kastrun
 ####  Contributed by Jesus Armand Calejero Roman
-####  Date: November, 21, 2019
-####  Version: 0.0.2
+####  Date: November, 26, 2019
+####  Version: 0.1
 ####
-
-####  ToDo: Write checker for existing letters
 
 #####################################
 
@@ -17,24 +15,6 @@ library(ggplot2)
 #######################
 ### Helper functions
 #######################
-
-zamenjaj2 <- function(beseda, crka, iskana_beseda){
-  
-  if (regexpr(crka, beseda)[1] > 0) {
-    
-    pozicija <- regexpr(crka, beseda)[1]
-    iskana_beseda[pozicija] <- crka
-    print(paste(iskana_beseda, collapse =  " "))
-    
-    #convert back to single string to check for equality
-    if (paste(iskana_beseda, collapse = "") == beseda) {
-      return(iskana_beseda)
-      print("End Game!")
-    }
-    
-    return(iskana_beseda)
-  }
-}
 
 AnalyzeWordCandidate <- function(control.df, word.c) {
   control.df$flag <- ifelse(control.df$word == word.c, 1, 0)
@@ -103,6 +83,7 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
   }
   control.df <- data.frame(word = strsplit(beseda, "")[[1]], 
                            flag = 0,
+                           archived = 0,
                            index = rep(1:length(strsplit(beseda, "")[[1]])), 
                            stringsAsFactors = FALSE)
   iskana_beseda <- replicate(nchar(beseda), '_')
@@ -121,28 +102,30 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
       
       cilj <- rbind(cilj, crka)
       index.c <- AnalyzeWordCandidate(control.df, crka)
-
-      #iskana_beseda <- zamenjaj2(beseda, crka, iskana_beseda)
-      iskana_beseda[index.c] <- crka
-      cat(iskana_beseda, "\n")
-      print(paste("Yay!","Try N:",i+1,"Wrong letters: {",(toString(paste0(cilj_n, sep=","))),"}")) 
-      
-      if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
-        active == FALSE
-        print("Bravo, win!")
-        break
+      if (max(control.df$archived[index.c]) == 1) {
+          print(paste("Yay!", "Try N:", i + 1, "Repeat letters, try again. Remember, wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
+      } else {
+        control.df$archived[index.c] <- 1
+        iskana_beseda[index.c] <- crka
+        cat(iskana_beseda, "\n")
+        print(paste("Yay!", "Try N:", i + 1, "Wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
+        
+        if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
+          active == FALSE
+          print("Bravo, win!")
+          break
+        }
       }
-      
     } else {
       cilj_n <- rbind(cilj_n, crka)
-      print(paste("Nope!","Try N:",i + 1, "Wrong letters: {",(toString(paste0(cilj_n, sep = ","))),"}")) 
+      print(paste("Nope!", "Try N:", i + 1, "Wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
       #print(toString(paste0(cilj_n, sep=",")))
       
       #Graph
       st_napak <- as.integer(length(cilj_n))
       print(drawMan(st_napak = st_napak))
       
-      if(as.integer(st_napak) == 7){
+      if (as.integer(st_napak) == 7) {
         active == FALSE
         break
         print("End Game")
@@ -150,12 +133,13 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
       
     }
     
-    i= i + 1
-    #cat("\f")  
-    if(st_napak == 7){
+    i <- i + 1
+
+    if (st_napak == 7) {
       active == FALSE
       break
       print("End game")
     }
+    
   }
 }
