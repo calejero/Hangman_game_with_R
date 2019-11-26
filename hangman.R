@@ -4,11 +4,9 @@
 ####
 ####  Created by Tomaz Kastrun
 ####  Contributed by Jesus Armand Calejero Roman
-####  Date: November, 21, 2019
-####  Version: 0.0.2
+####  Date: November, 26, 2019
+####  Version: 0.1
 ####
-
-####  ToDo: Write checker for existing letters
 
 #####################################
 
@@ -85,6 +83,7 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
   }
   control.df <- data.frame(word = strsplit(beseda, "")[[1]], 
                            flag = 0,
+                           archived = 0,
                            index = rep(1:length(strsplit(beseda, "")[[1]])), 
                            stringsAsFactors = FALSE)
   iskana_beseda <- replicate(nchar(beseda), '_')
@@ -103,17 +102,20 @@ StartNewGame <- function(sensitive.flag = TRUE) { # sensitive.flag: TRUE -> capi
       
       cilj <- rbind(cilj, crka)
       index.c <- AnalyzeWordCandidate(control.df, crka)
-
-      iskana_beseda[index.c] <- crka
-      cat(iskana_beseda, "\n")
-      print(paste("Yay!", "Try N:", i + 1, "Wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
-      
-      if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
-        active == FALSE
-        print("Bravo, win!")
-        break
+      if (max(control.df$archived[index.c]) == 1) {
+          print(paste("Yay!", "Try N:", i + 1, "Repeat letters, try again. Remember, wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
+      } else {
+        control.df$archived[index.c] <- 1
+        iskana_beseda[index.c] <- crka
+        cat(iskana_beseda, "\n")
+        print(paste("Yay!", "Try N:", i + 1, "Wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
+        
+        if (as.character(paste(iskana_beseda, collapse = "")) == beseda) {
+          active == FALSE
+          print("Bravo, win!")
+          break
+        }
       }
-      
     } else {
       cilj_n <- rbind(cilj_n, crka)
       print(paste("Nope!", "Try N:", i + 1, "Wrong letters: {", (toString(paste0(cilj_n, sep = ","))), "}")) 
